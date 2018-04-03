@@ -53,9 +53,9 @@ struct LockPoints {
     // 设置块链的高度和中值时间，用来符合相对锁定时间限制(BIP68);
     int height;
     int64_t time;
-    // As long as the current chain descends from the highest height block
+    // As long as the current chain descends from the highest  height block  和当前链的最大高度一样  ？
     // containing one of the inputs used in the calculation, then the cached
-    // values are still valid even after a reorg.
+    // values are still valid even after a reorg 重整.
     // 只要当前的链从这个块高度下降，该高度的块的一个交易 那么缓存的值在块链重组后仍然有效。
     CBlockIndex *maxInputBlock;
 
@@ -66,25 +66,25 @@ class CTxMemPool;
 
 /** \class CTxMemPoolEntry
  *
- * CTxMemPoolEntry stores data about the corresponding transaction, as well as
+ * CTxMemPoolEntry stores data about the corresponding相应的 transaction, as well as
  * data about all in-mempool transactions that depend on the transaction
  * ("descendant" transactions).
  *
- * When a new entry is added to the mempool, we update the descendant state
+ * When a new entry is added to the mempool, we update the descendant下降的祖传的 state
  * (nCountWithDescendants, nSizeWithDescendants, and nModFeesWithDescendants)
- * for all ancestors of the newly added transaction.
+ * for all ancestors of the newly added transaction. 当添加一个新交易时，需要添加一个新的entry，并且更新他的所有祖先的子孙状态信息
  *
  * If updating the descendant state is skipped, we can mark the entry as
  * "dirty", and set nSizeWithDescendants/nModFeesWithDescendants to equal
  * nTxSize/nFee+feeDelta. (This can potentially happen during a reorg, where we
  * limit the amount of work we're willing to do to avoid consuming too much
- * CPU.)
+ * CPU.) 如果不更新子孙状态信息，这是一个脏数据
  */
 
 class CTxMemPoolEntry {
 private:
     CTransactionRef tx;
-    //!< Cached to avoid expensive parent-transaction lookups; 缓存交易费，避免进行昂贵的查询。
+    //!< Cached to avoid expensive昂贵的 parent-transaction lookups; 缓存交易费，避免进行昂贵的查询。
     Amount nFee;
     //!< ... and avoid recomputing tx size； 缓存交易大小，避免重复计算；
     size_t nTxSize;
@@ -393,27 +393,27 @@ public:
 
 /**
  * CTxMemPool stores valid-according-to-the-current-best-chain transactions that
- * may be included in the next block.
+ * may be included in the next block. 交易内存池存储了符合当前链而得出的可能会放到下个块的有效交易
  *
  * Transactions are added when they are seen on the network (or created by the
  * local node), but not all transactions seen are added to the pool. For
- * example, the following new transactions will not be added to the mempool:
- * - a transaction which doesn't meet the minimum fee requirements.
- * - a new transaction that double-spends an input of a transaction already in
+ * example, the following new transactions will not be added to the mempool: 当网络上发过来一笔交易可能会放入交易池，但是并不是所有的交易都放入交易池，例如以下几种情况的新交易不放入交易池
+ * - a transaction which doesn't meet the minimum fee requirements. 1. 交易小于最小交易费用
+ * - a new transaction that double-spends an input of a transaction already in    双花的交易不放入交易池，bip125例外
  * the pool where the new transaction does not meet the Replace-By-Fee
  * requirements as defined in BIP 125.
  * - a non-standard transaction.
  *
  * CTxMemPool::mapTx, and CTxMemPoolEntry bookkeeping:
  *
- * mapTx is a boost::multi_index that sorts the mempool on 4 criteria:
+ * mapTx is a boost::multi_index that sorts the mempool on 4 criteria标准(criterion复数): mapTx是一个boost::multi_index结构，在内存池中按以下四项排序
  * - transaction hash
  * - feerate [we use max(feerate of tx, feerate of tx with all descendants)]
  * - time in mempool
  * - mining score (feerate modified by any fee deltas from
  * PrioritiseTransaction)
  *
- * Note: the term "descendant" refers to in-mempool transactions that depend on
+ * Note: the term "descendant" refers to  in-mempool transactions that depend on
  * this one, while "ancestor" refers to in-mempool transactions that a given
  * transaction depends on.
  *
